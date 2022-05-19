@@ -9,6 +9,10 @@ SELECT name, duration FROM tracks
 ORDER BY duration DESC
 LIMIT 1;
 
+/* Либо:*/
+SELECT name, duration FROM tracks
+where duration = (SELECT max(duration) FROM tracks);
+
 /* 3. Название треков, продолжительность которых не менее 3,5 минуты */
 SELECT name, duration FROM tracks
 WHERE duration >= '00:03:30';

@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS
 singers_genres (
 singer_id INTEGER NOT NULL REFERENCES singers(id),
 genre_id INTEGER NOT NULL REFERENCES genres(id),
-CONSTANT singers_genres_unique PRIMARY KEY (singer_id, genre_id)
+CONSTRAINT singers_genres_unique PRIMARY KEY (singer_id, genre_id)
  );
 
 CREATE TABLE IF NOT EXISTS

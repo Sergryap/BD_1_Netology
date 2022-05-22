@@ -29,3 +29,150 @@ WHERE name NOT iLIKE '% %'
 /* 6. Название треков, которые содержат слово "мой"/"my"*/
 SELECT name FROM tracks
 WHERE name iLIKE '%мой%' OR name iLIKE '%моя%'; 
+
+/* Корректировка названий и типов столбцов ранее созданной базы
+перед следующими запросами для более удобных вариантов записей */
+
+ALTER TABLE genres
+RENAME COLUMN id TO genre_id;
+
+ALTER TABLE singers 
+RENAME COLUMN id TO singer_id;
+
+ALTER TABLE albums  
+RENAME COLUMN id TO album_id;
+
+ALTER TABLE tracks  
+RENAME COLUMN id TO track_id;
+
+ALTER TABLE collections  
+RENAME COLUMN id TO collection_id;
+
+ALTER TABLE albums 
+ALTER COLUMN release_year TYPE NUMERIC(4,0) USING release_year::numeric;
+
+ALTER TABLE collections 
+ALTER COLUMN release_year TYPE NUMERIC(4,0) USING release_year::numeric;
+
+/* количество исполнителей в каждом жанре
+с сортировкой по количеству по убыванию и затем названию */
+
+SELECT name AS Жанр,  count(genre_id) AS Количество_исполнителей
+FROM
+  genres
+  INNER JOIN singers_genres USING (genre_id)
+GROUP BY 1
+ORDER BY 2 DESC, 1;
+
+/* количество треков, вошедших в альбомы 2000-2020 годов */
+
+SELECT count(track_id) AS Количество
+FROM
+  tracks
+  INNER JOIN albums USING (album_id)  
+WHERE release_year between 2000 AND 2020;
+
+/* средняя продолжительность треков по каждому альбому */
+SELECT albums.name AS Альбом, AVG(duration) AS Средняя продолжительность
+FROM
+  tracks
+  INNER JOIN albums USING (album_id)
+GROUP BY album_id
+ORDER BY 2;
+
+/* средняя продолжительность треков по каждому альбому 
+с сортировкой по средней длительности по убыванию */
+SELECT album_id, albums.name, date_trunc('second', AVG(duration)) AS Средняя_продолжительность
+FROM
+  tracks
+  INNER JOIN albums USING (album_id)
+GROUP BY 1, 2
+ORDER BY 3 DESC;
+
+/* все исполнители, которые не выпустили альбомы в 2020 году */
+SELECT DISTINCT singer_id, singers.name AS Исполнитель
+FROM
+  singers
+  INNER JOIN singers_albums USING (singer_id)
+  INNER JOIN albums USING (album_id)  
+WHERE release_year != 2020
+ORDER BY 1;
+
+/* названия сборников, в которых присутствует конкретный исполнитель (выберите сами) */
+
+SELECT collection_id, collections.name AS Сборник
+FROM
+  singers
+  INNER JOIN singers_albums USING (singer_id)
+  INNER JOIN albums USING (album_id)
+  INNER JOIN tracks USING (album_id)
+  INNER JOIN tracks_collections USING (track_id)
+  INNER JOIN collections USING (collection_id)
+WHERE singers.name = 'Цой'
+ORDER BY 1;
+
+/* название альбомов, в которых присутствуют исполнители более 1 жанра */
+SELECT album_id, albums.name AS Альбом
+FROM
+  albums
+  INNER JOIN singers_albums USING (album_id)
+  INNER JOIN singers USING (singer_id)
+WHERE singer_id IN (
+  SELECT singer_id
+  FROM singers_genres
+  GROUP BY singer_id
+  HAVING count(*) > 1)
+ORDER BY 1;
+
+/* наименование треков, которые не входят в сборники */
+SELECT track_id, name
+FROM
+tracks
+  LEFT JOIN tracks_collections USING (track_id)
+WHERE collection_id IS NULL
+ORDER BY 1;
+
+/* исполнителя(-ей), написавшего самый короткий по продолжительности трек (теоретически таких треков может быть несколько) */
+
+SELECT singer_id, singers.name, duration AS Продолжительность
+  FROM
+  tracks
+  INNER JOIN albums USING (album_id)  
+  INNER JOIN singers_albums USING (album_id) 
+  INNER JOIN singers USING (singer_id)
+WHERE duration = (
+SELECT MIN(duration) FROM tracks);
+
+/* название альбомов, содержащих наименьшее количество треков */
+
+SELECT album_id, albums.name, count(*) as Количество
+  FROM albums
+  INNER JOIN tracks USING (album_id)
+  GROUP BY 1, 2
+  HAVING count(*) = (
+   SELECT MIN(n)
+   FROM (
+    SELECT COUNT(*) as n
+    FROM albums
+    INNER JOIN tracks USING (album_id)
+    GROUP BY album_id) query_in_1)
+   
+/* Либо */
+
+SELECT album_id, albums.name, count(*) as Количество
+  FROM albums
+  INNER JOIN tracks USING (album_id)
+  GROUP BY 1, 2
+  HAVING count(*) = (   
+    SELECT COUNT(*)
+    FROM albums
+    INNER JOIN tracks USING (album_id)
+    GROUP BY album_id
+	ORDER BY 1
+	LIMIT 1)
+  
+
+
+
+
+

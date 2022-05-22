@@ -57,7 +57,7 @@ ALTER COLUMN release_year TYPE NUMERIC(4,0) USING release_year::numeric;
 /* количество исполнителей в каждом жанре
 с сортировкой по количеству по убыванию и затем названию */
 
-SELECT name AS Жанр,  count(genre_id) AS Количество_исполнителей
+SELECT name AS Жанр,  COUNT(genre_id) AS Количество_исполнителей
 FROM
   genres
   INNER JOIN singers_genres USING (genre_id)
@@ -66,19 +66,19 @@ ORDER BY 2 DESC, 1;
 
 /* количество треков, вошедших в альбомы 2000-2020 годов */
 
-SELECT count(track_id) AS Количество
+SELECT COUNT(track_id) AS Количество
 FROM
   tracks
   INNER JOIN albums USING (album_id)  
-WHERE release_year between 2000 AND 2020;
+WHERE release_year BETWEEN 2000 AND 2020;
 
 /* средняя продолжительность треков по каждому альбому */
-SELECT albums.name AS Альбом, AVG(duration) AS Средняя продолжительность
+SELECT album_id, albums.name, date_trunc('second', AVG(duration)) AS Средняя_продолжительность
 FROM
   tracks
   INNER JOIN albums USING (album_id)
-GROUP BY album_id
-ORDER BY 2;
+GROUP BY 1, 2
+ORDER BY 3 desc;
 
 /* средняя продолжительность треков по каждому альбому 
 с сортировкой по средней длительности по убыванию */

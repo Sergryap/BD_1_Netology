@@ -72,13 +72,6 @@ FROM
   INNER JOIN albums USING (album_id)  
 WHERE release_year BETWEEN 2000 AND 2020;
 
-/* средняя продолжительность треков по каждому альбому */
-SELECT album_id, albums.name, date_trunc('second', AVG(duration)) AS Средняя_продолжительность
-FROM
-  tracks
-  INNER JOIN albums USING (album_id)
-GROUP BY 1, 2
-ORDER BY 3 desc;
 
 /* средняя продолжительность треков по каждому альбому 
 с сортировкой по средней длительности по убыванию */
@@ -89,13 +82,16 @@ FROM
 GROUP BY 1, 2
 ORDER BY 3 DESC;
 
-/* все исполнители, которые не выпустили альбомы в 2020 году */
-SELECT DISTINCT singer_id, singers.name AS Исполнитель
+/* все исполнители, которые не выпустили альбомы в 2018 году */
+SELECT singer_id, singers.name AS Исполнитель
+FROM singers
+WHERE singer_id NOT IN (
+SELECT DISTINCT singer_id
 FROM
   singers
   INNER JOIN singers_albums USING (singer_id)
   INNER JOIN albums USING (album_id)  
-WHERE release_year != 2020
+WHERE release_year = 2018)
 ORDER BY 1;
 
 /* названия сборников, в которых присутствует конкретный исполнитель (выберите сами) */

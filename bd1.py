@@ -4,7 +4,7 @@ from pprint import pprint
 
 # Просто потренировался с sqlalchemy
 # Все ДЗ находится в sql-файлах
-password = urllib.parse.quote_plus("Krot@2015")
+password = urllib.parse.quote_plus("Sofa@2015")
 db = f'postgresql://sergryap:{password}@localhost:5432/sergryap'
 engine = sqlalchemy.create_engine(db)
 connection = engine.connect()
@@ -26,8 +26,6 @@ ORDER BY 3, 1
 """).fetchall()
 pprint(sel)
 
-
-
 # количество исполнителей в каждом жанре
 # с сортировкой по количеству по убыванию и затем названию
 sel = connection.execute("""
@@ -40,14 +38,17 @@ ORDER BY 2 DESC, 1;
 """).fetchall()
 pprint(sel)
 
-# все исполнители, которые не выпустили альбомы в 2020 году
+# все исполнители, которые не выпустили альбомы в 2018 году
 sel = connection.execute("""
-SELECT DISTINCT singer_id, singers.name AS Исполнитель
+SELECT singer_id, singers.name AS Исполнитель
+FROM singers
+WHERE singer_id NOT IN (
+SELECT DISTINCT singer_id
 FROM
   singers
   INNER JOIN singers_albums USING (singer_id)
   INNER JOIN albums USING (album_id)  
-WHERE release_year != 2020
+WHERE release_year = 2018)
 ORDER BY 1;
 """).fetchall()
 pprint(sel)

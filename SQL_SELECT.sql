@@ -49,10 +49,10 @@ ALTER TABLE collections
 RENAME COLUMN id TO collection_id;
 
 ALTER TABLE albums 
-ALTER COLUMN release_year TYPE NUMERIC(4,0) USING release_year::numeric;
+ALTER COLUMN release_year TYPE INTEGER USING release_year::INTEGER;
 
 ALTER TABLE collections 
-ALTER COLUMN release_year TYPE NUMERIC(4,0) USING release_year::numeric;
+ALTER COLUMN release_year TYPE INTEGER USING release_year::INTEGER;
 
 /* количество исполнителей в каждом жанре
 с сортировкой по количеству по убыванию и затем названию */

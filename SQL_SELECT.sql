@@ -95,6 +95,22 @@ FROM
   WHERE release_year = 2018)
 ORDER BY 1;
 
+/* либо */
+
+SELECT singer_id, singers.name AS Исполнитель
+FROM singers
+LEFT JOIN (
+  SELECT DISTINCT singer_id
+  FROM
+  singers
+  INNER JOIN singers_albums USING (singer_id)
+  INNER JOIN albums USING (album_id)  
+  WHERE release_year = 1967) a
+USING (singer_id)
+WHERE a.singer_id IS NULL  
+ORDER BY 1;
+
+
 /* названия сборников, в которых присутствует конкретный исполнитель (выберите сами) */
 
 SELECT collection_id, collections.name AS Сборник

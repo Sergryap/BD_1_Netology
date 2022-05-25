@@ -83,6 +83,22 @@ GROUP BY 1, 2
 ORDER BY 3 DESC;
 
 /* все исполнители, которые не выпустили альбомы в 2018 году */
+
+SELECT distinct singers.singer_id, singers.name AS Исполнитель
+FROM
+  singers
+  left JOIN singers_albums USING (singer_id)  
+  LEFT JOIN (
+  SELECT album_id, release_year
+  FROM albums
+  WHERE release_year = 2018
+  ) query_in USING (album_id)
+WHERE release_year IS NULL
+ORDER BY 1;
+
+/* Либо */
+
+
 SELECT singer_id, singers.name AS Исполнитель
 FROM singers
 WHERE singer_id NOT IN (
